@@ -1,0 +1,214 @@
+{% extends 'base.html' %}
+
+{% block title %}S-Curve{% endblock %}
+
+{% block css %}
+
+<link rel="stylesheet"
+      href="{{ url_for('static', filename='css/scurve.css') }}">
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+{% endblock %}
+
+{% block content %}
+
+<div class="scurve-container">
+
+<!-- ================= TITLE ================= -->
+
+<div class="top-bar">
+
+    <h1 class="page-title">
+        Biểu đồ S-Curve
+    </h1>
+
+    <!-- FILTER PROJECT -->
+
+    <form method="GET"
+          action="{{ url_for('scurve') }}"
+          class="filter-form">
+
+        <select name="proj_id"
+                onchange="this.form.submit()">
+
+            <option value="">
+                -- Chọn dự án --
+            </option>
+
+            {% for p in projects %}
+
+                <option value="{{ p.proj_id }}"
+                    {% if selected_proj_id == p.proj_id %}
+                        selected
+                    {% endif %}
+                >
+                    {{ p.proj_name }}
+                </option>
+
+            {% endfor %}
+
+        </select>
+
+    </form>
+
+</div>
+
+{% if project %}
+
+<!-- ================= KPI ================= -->
+
+<div class="kpi-grid">
+
+    <div class="kpi-card">
+        <h3>PV</h3>
+        <p>{{ "{:,.0f}".format(total_PV) }} VNĐ</p>
+    </div>
+
+    <div class="kpi-card">
+        <h3>EV</h3>
+        <p>{{ "{:,.0f}".format(total_EV) }} VNĐ</p>
+    </div>
+
+    <div class="kpi-card">
+        <h3>AC</h3>
+        <p>{{ "{:,.0f}".format(total_AC) }} VNĐ</p>
+    </div>
+
+    <div class="kpi-card">
+        <h3>SPI</h3>
+        <p>{{ SPI }}</p>
+    </div>
+
+    <div class="kpi-card">
+        <h3>CPI</h3>
+        <p>{{ CPI }}</p>
+    </div>
+
+</div>
+
+<!-- ================= CHART ================= -->
+
+<div class="chart-card">
+
+    <canvas id="scurveChart"></canvas>
+
+</div>
+
+<!-- ================= NHẬN XÉT ================= -->
+
+<div class="analysis-box">
+
+    <h2>Nhận xét</h2>
+
+    <ul>
+
+        {% if SPI < 1 %}
+            <li>Dự án đang chậm tiến độ.</li>
+        {% elif SPI > 1 %}
+            <li>Dự án đang vượt tiến độ.</li>
+        {% else %}
+            <li>Dự án đang đúng tiến độ.</li>
+        {% endif %}
+
+        {% if CPI < 1 %}
+            <li>Dự án đang vượt chi phí.</li>
+        {% elif CPI > 1 %}
+            <li>Dự án đang tiết kiệm chi phí.</li>
+        {% else %}
+            <li>Dự án đang đúng ngân sách.</li>
+        {% endif %}
+
+    </ul>
+
+</div>
+
+{% endif %}
+
+</div>
+
+{% endblock %}
+
+{% block js %}
+
+{% if project %}
+
+<script>
+
+    const labels = JSON.parse('{{ labels | tojson | safe }}');
+
+    const pvData = JSON.parse('{{ pv_data | tojson | safe }}');
+
+    const evData = JSON.parse('{{ ev_data | tojson | safe }}');
+
+    const acData = JSON.parse('{{ ac_data | tojson | safe }}');
+
+    new Chart(document.getElementById('scurveChart'), {
+
+        type: 'line',
+
+        data: {
+
+            labels: labels,
+
+            datasets: [
+
+                {
+                    label: 'PV',
+                    data: pvData,
+                    borderColor: '#3498db',
+                    backgroundColor: '#3498db',
+                    tension: 0.4
+                },
+
+                {
+                    label: 'EV',
+                    data: evData,
+                    borderColor: '#2ecc71',
+                    backgroundColor: '#2ecc71',
+                    tension: 0.4
+                },
+
+                {
+                    label: 'AC',
+                    data: acData,
+                    borderColor: '#e74c3c',
+                    backgroundColor: '#e74c3c',
+                    tension: 0.4
+                }
+
+            ]
+
+        },
+
+        options: {
+
+            responsive: true,
+
+            plugins: {
+
+                legend: {
+                    position: 'top'
+                }
+
+            },
+
+            scales: {
+
+                y: {
+
+                    beginAtZero: true
+
+                }
+
+            }
+
+        }
+
+    });
+
+</script>
+
+{% endif %}
+
+{% endblock %}

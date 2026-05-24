@@ -1,0 +1,648 @@
+{% extends 'base.html' %}
+
+{% block css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/importdata.css') }}">
+{% endblock %}
+
+{% block content %}
+
+<div class="import-container">
+
+    <!-- ================= PROJECT INFO ================= -->
+    <div class="project-info box">
+        <h3>Thông tin dự án</h3>
+
+        <div class="info-grid">
+            <div>
+                <p><b>Tên dự án:</b> {{ project.proj_name }}</p>
+                <p><b>Mô tả dự án:</b> {{ project.description }}</p>   
+                <!-- <label>Mô tả dự án: </label>
+                    <div class="desc-text">
+                        {{ project.description }}                      
+                    </div> -->
+            </div>
+
+            <div class="info-right">
+                <p><b>Ngày bắt đầu:</b> {{ project.time_start }}</p>
+                <p><b>Ngày kết thúc:</b> {{ project.time_end }}</p>
+                <p><b>Trạng thái:</b> {{ status_map[project.status] }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= KPI ================= -->
+    <div class="kpi-box">
+        <div class="kpi-left">
+            <p>Tổng giá trị kế hoạch (PV): <b>{{ "{:,.0f}".format(kpi.PV) }}</b></p>
+            <p>Tổng giá trị đạt được (EV): <b>{{ "{:,.0f}".format(kpi.EV) }}</b></p>
+            <p>Tổng chi phí thực tế (AC): <b>{{ "{:,.0f}".format(kpi.AC) }}</b></p>
+            <p class="total-bac">Tổng chi phí dự toán (BAC): <b>{{ "{:,.0f}".format(kpi.BAC) }}</b></p>
+        </div>
+
+        <div class="kpi-center"> 
+            <!-- CPI -->
+            <p>Hiệu suất chi phí (CPI): <b>{{ kpi.CPI }}</b></p>
+            <p class="
+                {% if kpi.CPI >= 1 %} good
+                {% else %} bad
+                {% endif %}
+            ">
+                {% if kpi.CPI >= 1 %}
+                    Hiệu quả chi phí tốt
+                {% else %}
+                    Hiệu quả chi phí kém
+                {% endif %}
+            </p>
+
+            <!-- SPI -->
+            <p>Hiệu suất tiến độ (SPI): <b>{{ kpi.SPI }}</b></p>
+            <p class="
+                {% if kpi.SPI >= 1 %} good
+                {% else %} bad
+                {% endif %}
+            ">
+                {% if kpi.SPI >= 1 %}
+                    Hiệu quả tiến độ tốt
+                {% else %}
+                    Hiệu quả tiến độ kém
+                {% endif %}
+            </p>
+
+            <!-- EAC -->
+            <p>Chi phí hoàn thành (EAC): <b>{{ "{:,.0f}".format(kpi.EAC) }}</b></p>
+
+        </div>
+
+        <div class="kpi-right">
+            <!-- CV -->
+            <p>Sai lệch chi phí (CV): <b>{{ "{:,.0f}".format(kpi.CV) }}</b></p>
+            <p class="{{ 'good' if kpi.CV >= 0 else 'bad' }}">
+                {{ 'Đang tiết kiệm chi phí' if kpi.CV >= 0 else 'Đang vượt chi phí' }}
+            </p>
+
+            <!-- SV -->
+            <p>Sai lệch tiến độ (SV): <b>{{ "{:,.0f}".format(kpi.SV) }}</b></p>
+            <p class="{{ 'good' if kpi.SV >= 0 else 'bad' }}">
+                {{ 'Đang vượt tiến độ' if kpi.SV >= 0 else 'Đang chậm tiến độ' }}
+            </p>
+
+            <!-- VAC -->
+            <p>Sai lệch khi hoàn thành (VAC): <b>{{ "{:,.0f}".format(kpi.VAC) }}</b></p>
+            <p class="{{ 'good' if kpi.VAC >= 0 else 'bad' }}">
+                {{ 'Dự án có khả năng tiết kiệm ngân sách' if kpi.VAC >= 0 else 'Dự án có nguy cơ vượt ngân sách' }}
+            </p>
+        </div>
+
+    </div>
+
+    <!-- <div class="kpi-summary">
+
+        <h3>Đánh giá tổng thể dự án</h3>
+
+        <p class="
+            {% if kpi.CPI >= 1 and kpi.SPI >= 1 %} good
+            {% elif kpi.CPI < 1 and kpi.SPI < 1 %} bad
+            {% else %} warning
+            {% endif %}
+        ">
+            {% if kpi.CPI >= 1 and kpi.SPI >= 1 %}
+                ✅ Dự án đang hoạt động TỐT (đúng tiến độ và đúng chi phí)
+            {% elif kpi.CPI < 1 and kpi.SPI < 1 %}
+                ❌ Dự án đang GẶP RỦI RO CAO (trễ tiến độ và vượt chi phí)
+            {% elif kpi.CPI < 1 %}
+                ⚠️ Dự án đang vượt chi phí nhưng tiến độ ổn
+            {% else %}
+                ⚠️ Dự án đang chậm tiến độ nhưng chi phí ổn
+            {% endif %}
+        </p>
+
+    </div> -->
+
+    <!-- ================= ACTION ================= -->
+    <div class="action-bar">
+
+        <form method="GET" class="action-bar">
+
+            <input type="hidden" name="proj_id" value="{{ project.proj_id }}">
+
+            <button type="button" class="btn add-btn" onclick="openWorkModal()">+ Thêm</button>
+            <button type="button"
+                    class="btn import-btn"
+                    onclick="openImportModal()">
+                Import Excel
+            </button>
+
+            <input 
+                type="text" 
+                name="keyword" 
+                placeholder="Nhập tên công việc..."
+                value="{{ request.args.get('keyword', '') }}"
+            >
+
+            <button type="submit" class="btn search-btn">Tìm kiếm</button>
+
+            <a href="{{ url_for('importdata', proj_id=project.proj_id) }}">
+                <button type="button" class="btn reset-btn">Tải lại trang</button>
+            </a>
+
+        </form>
+    </div>
+
+    <!-- ================= TABLE ================= -->
+    <h3>Danh sách công việc</h3>
+
+    <table>
+        <tr>
+            <th class="text-center">STT</th>
+            <th class="text-center">Tên công việc</th>
+            <th class="text-center">Thời gian</th>
+            <!-- <th class="text-center">Ngày bắt đầu</th>
+            <th class="text-center">Ngày hoàn thành</th> -->
+            <!-- <th class="text-center">Khối lượng PV</th>
+            <th class="text-center">Đơn giá PV</th> -->
+            <th class="text-center">PV</th>
+            <!-- <th class="text-center">Khối lượng EV</th>
+            <th class="text-center">Đơn giá EV</th> -->
+            <th class="text-center">EV</th>
+            <!-- <th class="text-center">Khối lượng AC</th>
+            <th class="text-center">Đơn giá AC</th> -->
+            <th class="text-center">AC</th>
+            <th class="text-center">SV</th>
+            <th class="text-center">CV</th>
+            <th class="text-center">CPI</th>
+            <th class="text-center">SPI</th>
+            <th class="text-center">Chi tiết</th>
+        </tr>
+
+        {% for w in works %}
+        <tr>
+            <td class="text-center">{{ loop.index }}</td>           
+            <td>{{ w.work_name }}</td>
+            <td class="text-right">{{ w.time }} ngày</td>
+            <!-- <td>{{ w.time_start }}</td>
+            <td>{{ w.time_end }}</td> -->
+            <!-- <td>{{ "{:,.0f}".format(w.PV_kluong) }}</td>
+            <td>{{ "{:,.0f}".format(w.PV_dongia) }}</td> -->
+            <td class="text-right">{{ "{:,.0f}".format(w.PV) }}</td>
+            <!-- <td>{{ "{:,.0f}".format(w.EV_kluong) }}</td>
+            <td>{{ "{:,.0f}".format(w.EV_dongia) }}</td> -->
+            <td class="text-right">{{ "{:,.0f}".format(w.EV) }}</td>
+            <!-- <td>{{ "{:,.0f}".format(w.AC_kluong) }}</td>
+            <td>{{ "{:,.0f}".format(w.AC_dongia) }}</td> -->
+            <td class="text-right">{{ "{:,.0f}".format(w.AC) }}</td>
+            <td class="text-right">{{ "{:,.0f}".format(w.SV) }}</td>
+            <td class="text-right">{{ "{:,.0f}".format(w.CV) }}</td>
+            <td class="text-right">{{ "{:.2f}".format(w.CPI) }}</td>
+            <td class="text-right">{{ "{:.2f}".format(w.SPI) }}</td>
+            <td class="text-center">
+                <button class="edit-btn"
+                    onclick="openEditWorkModal(
+                        '{{ w.work_id }}',
+                        '{{ w.work_name }}',
+                        '{{ w.PV_kluong }}',
+                        '{{ w.PV_dongia }}',    
+                        '{{ w.EV_kluong }}',
+                        '{{ w.EV_dongia }}',
+                        '{{ w.AC_kluong }}',
+                        '{{ w.AC_dongia }}',
+                        '{{ w.time_start }}',
+                        '{{ w.time_end }}',
+                        '{{ w.CPI }}',
+                        '{{ w.CV }}',
+                        '{{ w.SPI }}',
+                        '{{ w.SV }}'
+                    )">
+
+                    <img src="{{ url_for('static', filename='images/icon-eye.png') }}" alt="edit">
+
+                </button>
+            </td>
+        </tr>
+        {% endfor %}
+
+    </table>
+
+</div>
+
+<!-- ================= MODAL THÊM ================= -->
+<div id="workModal" class="modal">
+    <div class="modal-box">
+
+        <div class="modal-header">
+            <h2>Thông tin công việc</h2>
+            <span class="close" onclick="closeWorkModal()">&times;</span>
+        </div>
+
+        <form id="workForm" method="POST" action="/add_work" class="modal-form">
+
+            <!-- QUAN TRỌNG -->
+            <input type="hidden" name="proj_id" value="{{ project.proj_id }}">
+
+            <!-- Tên -->
+            <label>Tên công việc</label>
+            <input type="text" name="work_name" required>
+
+            <!-- Khối lượng -->
+            <div class="row-3">
+                <div>
+                    <label>Khối lượng PV</label>
+                    <input type="text" name="PV_kluong" class="number-input" required>
+                </div>
+                <div>
+                    <label>Khối lượng EV</label>
+                    <input type="text" name="EV_kluong" class="number-input" required>
+                </div>
+                <div>
+                    <label>Khối lượng AC</label>
+                    <input type="text" name="AC_kluong" class="number-input" required>
+                </div>
+            </div>
+
+            <!-- Đơn giá -->
+            <div class="row-3">
+                <div>
+                    <label>Đơn giá PV</label>
+                    <input type="text" name="PV_dongia" class="number-input" required>
+                </div>
+                <div>
+                    <label>Đơn giá EV</label>
+                    <input type="text" name="EV_dongia" class="number-input" required>
+                </div>
+                <div>
+                    <label>Đơn giá AC</label>
+                    <input type="text" name="AC_dongia" class="number-input" required>
+                </div>
+            </div>
+
+            <!-- Ngày -->
+            <div class="row-2">
+                <div>
+                    <label>Ngày bắt đầu</label>
+                    <input type="date" name="time_start" required>
+                </div>
+                <div>
+                    <label>Ngày kết thúc</label>
+                    <input type="date" name="time_end" required>
+                </div>
+            </div>
+
+            <!-- KPI preview -->
+            <div class="kpi-preview">
+                <p>CPI: --</p>
+                <p>CV: --</p>
+                <p>SPI: --</p>
+                <p>SV: --</p>
+            </div>
+
+            <!-- Buttons -->
+            <div class="modal-actions">
+                <button type="submit" class="btn save-btn-modal">Lưu</button>
+                <button type="button" class="btn reset-btn-modal" onclick="resetWorkModal()">Làm lại</button>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+<!-- ================= IMPORT EXCEL MODAL ================= -->
+
+<div id="importModal" class="modal">
+
+    <div class="import-modal-box">
+
+        <div class="modal-header">
+            <h2>Import excel</h2>
+            <span class="close" onclick="closeImportModal()">&times;</span>
+        </div>
+
+        <!-- FILE MẪU -->
+        <div class="sample-download">
+            <a href="{{ url_for('download_excel_template') }}">
+                📄 File excel dữ liệu khách hàng mẫu
+            </a>
+        </div>
+
+        <!-- FORM -->
+        <form 
+            action="{{ url_for('import_excel') }}"
+            method="POST"
+            enctype="multipart/form-data"
+            class="import-form"
+        >
+
+            <input type="hidden" 
+                   name="proj_id" 
+                   value="{{ project.proj_id }}">
+
+            <div class="file-box">
+
+                <input type="file"
+                       name="excel_file"
+                       accept=".xlsx,.xls"
+                       required>
+
+            </div>
+
+            <button type="submit" class="save-import-btn">
+                ⬆ Lưu file
+            </button>
+        </form>
+
+        <!-- RESULT -->
+        {% if import_result %}
+        <div class="import-result">
+
+            <p>Tổng dòng: {{ import_result.total }}</p>
+
+            <p class="good">
+                Thành công: {{ import_result.success }}
+            </p>
+
+            <p class="bad">
+                Lỗi: {{ import_result.error }}
+            </p>
+
+        </div>
+        {% endif %}
+
+    </div>
+</div>
+
+<!-- ================= MODAL CHI TIẾT ================= -->
+<div id="editWorkModal" class="modal">
+
+    <div class="modal-box">
+
+        <div class="modal-header">
+            <h2>Chi tiết công việc</h2>
+            <span class="close" onclick="closeEditWorkModal()">&times;</span>
+        </div>
+
+        <form id="editWorkForm" method="POST" action="/update_work" class="modal-form">
+
+            <input type="hidden" name="work_id" id="edit_work_id">
+            <input type="hidden" name="proj_id" value="{{ project.proj_id }}">
+
+            <!-- Tên -->
+            <label>Tên công việc</label>
+            <input type="text" name="work_name" id="edit_work_name" required>
+
+            <!-- Khối lượng -->
+            <div class="row-3">
+
+                <div>
+                    <label>Khối lượng PV</label>
+                    <input type="text" name="PV_kluong"
+                        id="edit_PV_kluong"
+                        class="number-input"
+                        required>
+                </div>
+
+                <div>
+                    <label>Khối lượng EV</label>
+                    <input type="text" name="EV_kluong"
+                        id="edit_EV_kluong"
+                        class="number-input"
+                        required>
+                </div>
+
+                <div>
+                    <label>Khối lượng AC</label>
+                    <input type="text" name="AC_kluong"
+                        id="edit_AC_kluong"
+                        class="number-input"
+                        required>
+                </div>
+
+            </div>
+
+            <!-- Đơn giá -->
+            <div class="row-3">
+
+                <div>
+                    <label>Đơn giá PV</label>
+                    <input type="text" name="PV_dongia"
+                        id="edit_PV_dongia"
+                        class="number-input"
+                        required>
+                </div>
+
+                <div>
+                    <label>Đơn giá EV</label>
+                    <input type="text" name="EV_dongia"
+                        id="edit_EV_dongia"
+                        class="number-input"
+                        required>
+                </div>
+
+                <div>
+                    <label>Đơn giá AC</label>
+                    <input type="text" name="AC_dongia"
+                        id="edit_AC_dongia"
+                        class="number-input"
+                        required>
+                </div>
+
+            </div>
+
+            <!-- Ngày -->
+            <div class="row-2">
+
+                <div>
+                    <label>Ngày bắt đầu</label>
+                    <input type="date"
+                        name="time_start"
+                        id="edit_time_start"
+                        required>
+                </div>
+
+                <div>
+                    <label>Ngày kết thúc</label>
+                    <input type="date"
+                        name="time_end"
+                        id="edit_time_end"
+                        required>
+                </div>
+
+            </div>
+
+            <!-- KPI -->
+            <div class="kpi-preview">
+            <p>
+                CPI:<span id="edit_CPI">--</span>
+            </p>
+
+            <p>
+                CV:<span id="edit_CV">--</span>
+            </p>
+
+            <p>
+                SPI:<span id="edit_SPI">--</span>
+            </p>
+
+            <p>
+                SV:<span id="edit_SV">--</span>
+            </p>
+
+        </div>
+
+            <!-- BUTTON -->
+            <div class="modal-actions">
+
+                <button type="submit"
+                    class="btn save-btn-modal">
+                    CẬP NHẬT
+                </button>
+
+                <button type="button"
+                    class="btn delete-btn-modal"
+                    onclick="deleteWork()">
+                    XÓA CÔNG VIỆC
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}
+
+{% block js %}
+<script>
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    // ===== MODAL THÊM =====
+    window.openWorkModal = function () {
+        document.getElementById("workModal").style.display = "block";
+    }
+
+    window.closeWorkModal = function () {
+        document.getElementById("workModal").style.display = "none";
+    }
+
+    window.resetWorkModal = function () {
+        document.getElementById("workForm").reset();
+    }
+
+    // ===== IMPORT MODAL =====
+    window.openImportModal = function () {
+        document.getElementById("importModal").style.display = "block";
+    }
+
+    window.closeImportModal = function () {
+        document.getElementById("importModal").style.display = "none";
+    }
+
+    // ===== VALIDATE NGÀY =====
+    document.getElementById("workForm").addEventListener("submit", function(e) {
+
+        const start = this.querySelector('[name="time_start"]').value;
+        const end = this.querySelector('[name="time_end"]').value;
+
+        if (start && end && end < start) {
+            alert("Ngày kết thúc phải lớn hơn ngày bắt đầu!");
+            e.preventDefault();
+        }
+    });
+
+    // ===== FORMAT NUMBER =====
+    document.querySelectorAll(".number-input").forEach(input => {
+
+        input.addEventListener("input", function () {
+
+            let value = this.value.replace(/,/g, '');
+
+            if (!/^\d*\.?\d*$/.test(value)) {
+                this.value = "";
+                return;
+            }
+
+            if (value === "") return;
+
+            let parts = value.split(".");
+            parts[0] = Number(parts[0]).toLocaleString("en-US");
+
+            this.value = parts.join(".");
+        });
+
+    });
+
+});
+
+function openEditWorkModal(
+    id,
+    name,
+    pv_kl,
+    pv_dg,
+    ev_kl,
+    ev_dg,
+    ac_kl,
+    ac_dg,
+    start,
+    end,
+    cpi,
+    cv,
+    spi,
+    sv
+) {
+
+    document.getElementById("editWorkModal").style.display = "block";
+
+    document.getElementById("edit_work_id").value = id;
+    document.getElementById("edit_work_name").value = name;
+
+    document.getElementById("edit_PV_kluong").value = formatInput(pv_kl);
+    document.getElementById("edit_PV_dongia").value = formatInput(pv_dg);
+
+    document.getElementById("edit_EV_kluong").value = formatInput(ev_kl);
+    document.getElementById("edit_EV_dongia").value = formatInput(ev_dg);
+
+    document.getElementById("edit_AC_kluong").value = formatInput(ac_kl);
+    document.getElementById("edit_AC_dongia").value = formatInput(ac_dg);
+
+    document.getElementById("edit_time_start").value = start;
+    document.getElementById("edit_time_end").value = end;
+
+    document.getElementById("edit_CPI").innerText = cpi;
+    document.getElementById("edit_CV").innerText =
+        Number(cv).toLocaleString("en-US");
+
+    document.getElementById("edit_SPI").innerText = spi;
+    document.getElementById("edit_SV").innerText =
+        Number(sv).toLocaleString("en-US");
+
+}
+
+function closeEditWorkModal() {
+    document.getElementById("editWorkModal").style.display = "none";
+}
+
+function deleteWork() {
+
+    const confirmDelete = confirm(
+        "Bạn có chắc muốn xóa công việc này?"
+    );
+
+    if (confirmDelete) {
+
+        const workId =
+            document.getElementById("edit_work_id").value;
+
+        window.location.href =
+            `/delete_work/${workId}?proj_id={{ project.proj_id }}`;
+    }
+}
+
+function formatInput(value) {
+
+    if (!value) return "";
+
+    return Number(value).toLocaleString("en-US");
+}
+
+</script>
+{% endblock %}

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}EVM System{% endblock %}</title>
+
+    <!-- CSS chung -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+
+    
+    {% block css %}{% endblock %}
+</head>
+
+<body>
+
+<!-- HEADER -->
+<div class="header">
+    <h1 class="title">
+        HỆ THỐNG TÍNH TOÁN CHI PHÍ DỰ ÁN XÂY DỰNG THEO MÔ HÌNH EVM
+    </h1>
+
+    <div class="user-info">
+        Xin chào, {{ fullname }}
+        <span class="divider"></span>
+        <a href="{{ url_for('logout') }}" class="logout">Đăng xuất</a>
+    </div>
+</div>
+
+<!-- LAYOUT -->
+<div class="container">
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+        {% include 'components/sidebar.html' %}
+    </div>
+
+    <!-- CONTENT -->
+    <div class="content">
+
+        <!-- ✅ FLASH MESSAGE CỦA IMPORTDATA-->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-container">
+                    {% for category, message in messages %}
+                        <div class="flash {{ category }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}
+        {% endblock %}
+
+    </div>
+
+</div>
+
+<!-- JS chung -->
+<script>
+    setTimeout(() => {
+        const flash = document.querySelector('.flash-container');
+        if (flash) flash.style.display = 'none';
+    }, 1000);
+</script>
+
+{% block js %}{% endblock %}
+
+</body>
+</html>

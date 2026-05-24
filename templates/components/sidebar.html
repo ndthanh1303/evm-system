@@ -1,0 +1,25 @@
+<ul class="menu">
+    <li class="{{ 'active' if active_page == 'dashboard' else '' }}">
+        <a href="{{ url_for('dashboard') }}">DASHBOARD</a>
+    </li>
+
+    <li class="{{ 'active' if active_page == 'project' else '' }}">
+        <a href="{{ url_for('project') }}">DỰ ÁN</a>
+    </li>
+
+    <li class="{{ 'active' if active_page == 'importdata' else '' }}">
+        <a href="{{ url_for('importdata') }}">NHẬP DỮ LIỆU</a>
+    </li>
+
+    <li class="{{ 'active' if active_page == 'scurve' else '' }}">
+        <a href="{{ url_for('scurve') }}">BIỂU ĐỒ</a>
+    </li>
+
+    <li class="{{ 'active' if active_page == 'report' else '' }}">
+        <a href="{{ url_for('report') }}">XUẤT BÁO CÁO</a>
+    </li>
+
+    <li class="{{ 'active' if active_page == 'account' else '' }}">
+        <a href="{{ url_for('account') }}">TÀI KHOẢN</a>
+    </li>
+</ul>

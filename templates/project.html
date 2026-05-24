@@ -1,0 +1,440 @@
+    {% extends 'base.html' %}
+
+    {% block css %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/project.css') }}">
+    {% endblock %}
+
+    {% block content %}
+
+    <div class="top-bar">
+
+        <form method="GET" class="filter-bar">
+
+            <!-- LEFT -->
+            <div class="left-actions">
+
+                <button type="button" class="btn add-btn" onclick="openModal()">+ Thêm</button>
+
+                <input 
+                    type="text" 
+                    name="keyword" 
+                    placeholder="Nhập tên dự án..." 
+                    value="{{ filters.get('keyword', '') }}"
+                >
+
+                <button type="submit" class="btn search-btn">Tìm kiếm</button>
+
+                <a href="{{ url_for('project') }}">
+                    <button type="button" class="btn reset-btn">Tải lại trang</button>
+                </a>
+
+            </div>
+
+            <!-- RIGHT -->
+            <div class="right-filter">
+
+                <!-- chọn field -->
+                <select name="date_type">
+                    <option value="created_at" {{ 'selected' if filters.get('date_type') == 'created_at' else '' }}>
+                        Ngày tạo
+                    </option>
+                    <option value="time_start" {{ 'selected' if filters.get('date_type') == 'time_start' else '' }}>
+                        Ngày bắt đầu
+                    </option>
+                </select>
+
+                <!-- chọn loại -->
+                <select name="filter_type" id="filterType" onchange="changeFilter()">
+                    <option value="day" {{ 'selected' if filters.get('filter_type') == 'day' else '' }}>Theo ngày</option>
+                    <option value="month" {{ 'selected' if filters.get('filter_type') == 'month' else '' }}>Theo tháng</option>
+                    <option value="quarter" {{ 'selected' if filters.get('filter_type') == 'quarter' else '' }}>Theo quý</option>
+                    <option value="year" {{ 'selected' if filters.get('filter_type') == 'year' else '' }}>Theo năm</option>
+                </select>
+
+                <!-- dynamic -->
+                <div id="filterDynamic"></div>
+
+                <button type="submit" class="btn filter-btn">Lọc</button>
+
+                
+
+            </div>
+
+        </form>
+    </div>
+
+    <!-- ================= STAT ================= -->
+    <h3>Thống kê trạng thái dự án</h3>
+
+    <div class="status-box">
+
+        <a href="{{ url_for('project', status='ke_hoach') }}">
+            <div class="status-item yellow">
+                <h1>{{ stats.ke_hoach }}</h1>
+                <p>Kế hoạch</p>
+            </div>
+        </a>
+
+        <a href="{{ url_for('project', status='dang_thuc_hien') }}">
+            <div class="status-item blue">
+                <h1>{{ stats.dang_thuc_hien }}</h1>
+                <p>Đang thực hiện</p>
+            </div>
+        </a>
+
+        <a href="{{ url_for('project', status='tam_dung') }}">
+            <div class="status-item red">
+                <h1>{{ stats.tam_dung }}</h1>
+                <p>Tạm dừng</p>
+            </div>
+        </a>
+
+        <a href="{{ url_for('project', status='hoan_thanh') }}">
+            <div class="status-item green">
+                <h1>{{ stats.hoan_thanh }}</h1>
+                <p>Hoàn thành</p>
+            </div>
+        </a>
+
+        <a href="{{ url_for('project', status='dong') }}">
+            <div class="status-item gray">
+                <h1>{{ stats.dong }}</h1>
+                <p>Đóng</p>
+            </div>
+        </a>
+
+    </div>
+
+    <!-- ================= TABLE ================= -->
+    <h3>Danh sách dự án</h3>
+
+    <table>
+        <tr>
+            <th class="text-center">STT</th>
+            <th class="text-center">Tên dự án</th>
+            <th class="text-center">Mô tả</th>
+            <th class="text-center">Trạng thái</th>
+            <th class="text-center">Ngày tạo</th>
+            <th class="text-center">Ngày bắt đầu</th>
+            <th class="text-center">Ngày kết thúc</th>
+            <th class="text-center">Thao tác</th>
+            <th class="text-center">Xem chi tiết</th>
+        </tr>
+
+        {% for p in projects %}
+        <tr>
+            <td class="text-center">{{ loop.index }}</td>
+            <td>{{ p.proj_name }}</td>
+            <td title="{{ p.description }}">
+                {{ p.description }}
+            </td>
+            <td class="text-center">{{ status_map[p.status] }}</td>
+            <td class="text-center">{{ p.created_at }}</td>
+            <td class="text-center">{{ p.time_start }}</td>
+            <td class="text-center">{{ p.time_end }}</td>
+
+            <td class="text-center">
+                <button class="edit-btn1"
+                    onclick="openEditModal(
+                        '{{ p.proj_id }}',
+                        '{{ p.proj_name }}',
+                        '{{ p.description }}',
+                        '{{ p.time_start }}',
+                        '{{ p.time_end }}',
+                        '{{ p.status }}'
+                    )">
+                    Sửa
+                </button>
+            </td>
+
+            <td class="text-center">
+                <a href="{{ url_for('importdata', proj_id=p.proj_id) }}">
+                    <button class="edit-btn">
+                        <img src="{{ url_for('static', filename='images/icon-eye.png') }}" alt="edit">
+                    </button>
+                </a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+
+
+    <!-- ================= MODAL THÊM ================= -->
+    <div id="modal" class="modal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h2>Thông tin dự án</h2>
+                <span class="close" onclick="closeModal()">&times;</span>
+            </div>
+
+            <form method="POST" action="/add_project" class="modal-form">
+
+                <!-- Tên -->
+                <label>Tên dự án</label>
+                <input type="text" name="proj_name" required>
+
+                <!-- Mô tả -->
+                <label>Mô tả dự án</label>
+                <textarea name="description" rows="3" required></textarea>
+
+                <!-- Row ngày -->
+                <div class="row-3">
+                    <div>
+                        <label>Ngày bắt đầu</label>
+                        <input type="date" name="time_start" required>
+                    </div>
+
+                    <div>
+                        <label>Ngày kết thúc</label>
+                        <input type="date" name="time_end" required>
+                    </div>
+
+                    <div>
+                        <label>Trạng thái</label>
+                        <select name="status">
+                            <option value="ke_hoach">Kế hoạch</option>
+                            <option value="dang_thuc_hien">Đang thực hiện</option>
+                            <option value="tam_dung">Tạm dừng</option>
+                            <option value="hoan_thanh">Hoàn thành</option>
+                            <option value="dong">Đóng</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Buttons -->
+                <div class="modal-actions">
+                    <button type="submit" class="btn save-btn-modal">LƯU</button>
+                    <button type="button" class="btn reset-btn-modal" onclick="resetModal()">LÀM LẠI</button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+
+    <!-- ================= MODAL SỬA ================= -->
+    <div id="editModal" class="modal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h2>Sửa dự án</h2>
+                <span class="close" onclick="closeEditModal()">&times;</span>
+            </div>
+
+            <form method="POST" action="/update_project" class="modal-form">
+
+                <input type="hidden" name="proj_id" id="edit_proj_id">
+
+                <label>Tên dự án</label>
+                <input type="text" name="proj_name" id="edit_proj_name" required>
+
+                <label>Mô tả</label>
+                <textarea name="description" id="edit_description"></textarea>
+
+                <div class="row-3">
+                    <div>
+                        <label>Ngày bắt đầu</label>
+                        <input type="date" name="time_start" id="edit_start" required>
+                    </div>
+
+                    <div>
+                        <label>Ngày kết thúc</label>
+                        <input type="date" name="time_end" id="edit_end" required>
+                    </div>
+
+                    <div>
+                        <label>Trạng thái</label>
+                        <select name="status" id="edit_status">
+                            <option value="ke_hoach">Kế hoạch</option>
+                            <option value="dang_thuc_hien">Đang thực hiện</option>
+                            <option value="tam_dung">Tạm dừng</option>
+                            <option value="hoan_thanh">Hoàn thành</option>
+                            <option value="dong">Đóng</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="submit" class="btn save-btn-modal">CẬP NHẬT</button>
+                    <button type="button" class="btn delete-btn"
+                        onclick="confirmDelete()">
+                        XÓA DỰ ÁN
+                    </button>
+                </div>
+            </form>
+
+            <form id="deleteForm" method="POST" action="/delete_project">
+                <input type="hidden" name="proj_id" id="delete_proj_id_hidden">
+            </form>
+
+        </div>
+    </div>
+
+    {% endblock %}
+
+    {% block js %}
+    <script>
+
+        function openModal() {
+            document.getElementById("modal").style.display = "block";
+        }
+
+        function closeModal() {
+            document.getElementById("modal").style.display = "none";
+            document.querySelector('.modal-form').reset();
+        }
+
+        function resetModal() {
+            const form = document.querySelector('.modal-form');
+            form.reset();
+        }
+
+        // click ngoài modal
+        window.onclick = function(event) {
+            const modal = document.getElementById("modal");
+            const box = document.querySelector(".modal-box");
+
+            if (event.target === modal) {
+                box.classList.add("modal-bounce");
+
+                setTimeout(() => {
+                    box.classList.remove("modal-bounce");
+                }, 300);
+            }
+        }
+            
+
+        function changeFilter() {
+            const type = document.getElementById("filterType").value;
+            const container = document.getElementById("filterDynamic");
+
+            const filters = JSON.parse('{{ filters | tojson | safe }}');
+
+            let html = "";
+
+            // ===== DAY =====
+            if (type === "day") {
+                html = `
+                    <input type="date" name="date" value="${filters.date || ''}">
+                `;
+            }
+
+            // ===== MONTH =====
+            else if (type === "month") {
+                html = `
+                    <select name="month">
+                        ${[...Array(12)].map((_, i) => {
+                            const m = i + 1;
+                            return `
+                                <option value="${m}" ${filters.month == m ? 'selected' : ''}>
+                                    Tháng ${m}
+                                </option>
+                            `;
+                        }).join('')}
+                    </select>
+
+                    <select name="year">
+                        ${generateYearOptions(filters.year)}
+                    </select>
+                `;
+            }
+
+            // ===== QUARTER =====
+            else if (type === "quarter") {
+                html = `
+                    <select name="quarter">
+                        ${[1,2,3,4].map(q => `
+                            <option value="${q}" ${filters.quarter == q ? 'selected' : ''}>
+                                Quý ${q}
+                            </option>
+                        `).join('')}
+                    </select>
+
+                    <select name="year">
+                        ${generateYearOptions(filters.year)}
+                    </select>
+                `;
+            }
+
+            // ===== YEAR =====
+            else if (type === "year") {
+                html = `
+                    <select name="year">
+                        ${generateYearOptions(filters.year)}
+                    </select>
+                `;
+            }
+
+            container.innerHTML = html;
+        }
+
+
+        // ===== YEAR OPTIONS =====
+        function generateYearOptions(selectedYear) {
+            let options = "";
+            const currentYear = new Date().getFullYear();
+
+            for (let i = currentYear - 20; i <= currentYear + 20; i++) {
+                options += `
+                    <option value="${i}" ${selectedYear == i ? 'selected' : ''}>
+                        ${i}
+                    </option>
+                `;
+            }
+
+            return options;
+        }
+
+
+        // ===== LOAD LẠI FILTER =====
+        window.onload = function () {
+            changeFilter();
+        };
+
+        // ===== CHECK time_start < time_end =====
+        document.querySelector('.modal-form').addEventListener('submit', function(e) {
+            const start = document.querySelector('[name="time_start"]').value;
+            const end = document.querySelector('[name="time_end"]').value;
+
+            if (start && end && end < start) {
+                alert("Ngày kết thúc phải lớn hơn ngày bắt đầu!");
+                e.preventDefault();
+            }
+        });
+
+
+    // ======== MODAL SỬA ==========
+    function openEditModal(id, name, desc, start, end, status) {
+        document.getElementById("editModal").style.display = "block";
+
+        document.getElementById("edit_proj_id").value = id;
+        document.getElementById("edit_proj_name").value = name;
+        document.getElementById("edit_description").value = desc;
+        document.getElementById("edit_start").value = start;
+        document.getElementById("edit_end").value = end;
+        document.getElementById("edit_status").value = status;
+
+        document.getElementById("delete_proj_id_hidden").value = id;
+    }
+
+    function closeEditModal() {
+        document.getElementById("editModal").style.display = "none";
+    }
+
+    // ======== MODAL XÓA ==========
+    function confirmDelete() {
+        const name = document.getElementById("edit_proj_name").value;
+
+        const confirmDelete = confirm(
+            "Bạn có chắc là muốn xóa dự án '" + name + "' ?"
+        );
+
+        if (confirmDelete) {
+            const id = document.getElementById("edit_proj_id").value;
+            document.getElementById("delete_proj_id_hidden").value = id;
+
+            document.getElementById("deleteForm").submit();
+        }
+    }
+
+    </script>
+    {% endblock %}

@@ -1,0 +1,477 @@
+/* =========================
+   RESET CƠ BẢN
+========================= */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #f4f6f9;
+}
+
+/* =========================
+   HEADER
+========================= */
+.header {
+    background: #3f5f8a;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 30px;
+
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 60px; 
+    z-index: 1000;
+}
+
+.title {
+    font-size: 22px;
+    font-weight: bold;
+    color: #ffffff;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+}
+
+.divider::before {
+    content: "|";
+    margin: 0 10px;
+}
+
+.logout {
+    color: #ff6b6b;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.logout:hover {
+    color: #ff3b3b;
+    text-decoration: underline;
+}
+
+/* =========================
+   LAYOUT
+========================= */
+.container {
+    display: flex;
+    width: 100%;
+}
+
+/* =========================
+   SIDEBAR
+========================= */
+.sidebar {
+    width: 220px;
+    background: #122c4a;
+    color: white;
+    padding: 20px;
+
+    position: fixed;
+    top: 60px; /* bằng header */
+    left: 0;
+    height: calc(100vh - 60px);
+    overflow-y: auto;
+}
+
+/* SEARCH BOX */
+.sidebar input {
+    width: 100%;
+    padding: 8px;
+    border-radius: 5px;
+    border: none;
+    margin-bottom: 20px;
+}
+
+/* =========================
+   MENU
+========================= */
+.menu {
+    list-style: none;
+    padding: 0;
+}
+
+.menu li {
+    margin-bottom: 10px;
+}
+
+.menu li a {
+    display: block;
+    padding: 12px;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: 0.3s;
+}
+
+/* Hover */
+.menu li a:hover {
+    background: #1abc9c;
+}
+
+/* Active */
+.menu li.active a {
+    background: #1abc9c;
+    font-weight: bold;
+}
+
+/* =========================
+   CONTENT
+========================= */
+.content {
+    margin-left: 220px;
+    margin-top: 60px;
+    padding: 20px;
+
+    width: calc(100% - 220px); 
+}
+
+/* =========================
+   TABLE
+========================= */
+table {
+    border-collapse: collapse;
+    width: 100%;
+    background: white;
+}
+
+table th, table td {
+    padding: 10px;
+    border: 1px solid #ddd;
+    text-align: left;
+}
+
+table th {
+    background: #3f5f8a;
+    color: white;
+}
+
+/* =========================
+   FORM
+========================= */
+input, select, button {
+    padding: 8px;
+    margin-top: 5px;
+    margin-bottom: 10px;
+}
+
+button {
+    background: #1abc9c;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+button:hover {
+    background: #16a085;
+}
+
+/* =========================
+   CARD / BOX
+========================= */
+.box {
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+/* =========================
+   CHART
+========================= */
+canvas {
+    max-width: 100%;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+@media (max-width: 768px) {
+    .container {
+        flex-direction: column;
+    }
+
+    .sidebar {
+        width: 100%;
+    }
+}
+
+/* TOP BAR */
+.top-bar {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.left-actions {
+    display: flex;
+    gap: 10px;
+}
+
+/* BUTTON */
+.btn {
+    padding: 8px 14px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.add-btn {
+    background: #e74c3c;
+    color: white;
+}
+
+.search-btn {
+    background: #3498db;
+    color: white;
+}
+
+.filter-btn {
+    background: #2980b9;
+    color: white;
+}
+
+/* FILTER */
+.filter-bar select,
+.filter-bar input {
+    padding: 6px;
+    margin-left: 5px;
+}
+
+/* STATUS BOX */
+.status-box {
+    display: flex;
+    justify-content: space-between;
+    background: #fff;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.status-item {
+    text-align: center;
+    flex: 1;
+}
+
+.status-item h1 {
+    font-size: 40px;
+}
+
+.yellow { color: #f1c40f; }
+.blue { color: #3498db; }
+.red { color: #e74c3c; }
+.green { color: #2ecc71; }
+.gray { color: #7f8c8d; }
+
+/* EDIT BUTTON */
+.edit-btn {
+    background: #f1c40f;
+    border: none;
+    padding: 6px 10px;
+    cursor: pointer;
+}
+
+/* ===== MODAL BACKGROUND ===== */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 999;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.4);
+}
+
+/* ===== MODAL BOX ===== */
+.modal-box {
+    background: #fff;
+    width: 600px;
+    margin: 80px auto;
+    border-radius: 8px;
+    padding: 20px 25px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+}
+
+/* ===== HEADER ===== */
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #eee;
+    margin-bottom: 15px;
+}
+
+.modal-header h2 {
+    font-size: 18px;
+}
+
+.close {
+    font-size: 22px;
+    cursor: pointer;
+}
+
+/* ===== FORM ===== */
+.modal-form label {
+    font-size: 14px;
+    margin-top: 10px;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.modal-form input,
+.modal-form textarea,
+.modal-form select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+/* ===== ROW 3 CỘT ===== */
+.row-3 {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.row-3 > div {
+    flex: 1;
+}
+
+/* ===== BUTTON ===== */
+.modal-actions {
+    margin-top: 20px;
+    display: flex;
+    gap: 10px;
+}
+
+.save-btn {
+    background: #28a745;
+    color: #fff;
+}
+
+.reset-btn-modal {
+    background: #007bff;
+    color: #fff;
+}
+
+.close {
+    float: right;
+    cursor: pointer;
+    font-size: 20px;
+}
+.filter-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.filter-bar select,
+.filter-bar input {
+    padding: 6px 10px;
+    border-radius: 5px;
+}
+
+.top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.filter-bar {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.left-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.right-filter {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+.reset-btn {
+    background: #0ea52f;
+    color: white;
+}
+
+.reset-btn:hover {
+    background: #5eff00;
+}
+.status-box a {
+    text-decoration: none;
+    color: inherit;
+}
+
+@keyframes modalBounce {
+    0%   { transform: scale(1); }
+    30%  { transform: scale(1.05); }
+    60%  { transform: scale(0.98); }
+    100% { transform: scale(1); }
+}
+
+.modal-bounce {
+    animation: modalBounce 0.3s ease;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.text-right {
+    text-align: right;
+}
+
+.flash-container {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 9999;
+}
+
+.flash {
+    padding: 12px 20px;
+    margin-bottom: 10px;
+    border-radius: 6px;
+    color: white;
+    font-weight: bold;
+    animation: fadeIn 0.3s ease;
+    min-width: 300px;
+    text-align: center;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.flash.warning {
+    background: #f39c12;
+}
+
+.flash.success {
+    background: #2ecc71;
+}
+
+.flash.error {
+    background: #e74c3c;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}

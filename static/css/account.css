@@ -1,0 +1,269 @@
+.account-container{
+    padding: 20px;
+}
+
+/* ================================================= */
+/* USER */
+/* ================================================= */
+
+.account-box{
+    width: 900px;
+    margin: auto;
+    background: #fff;
+    padding: 40px;
+    border-radius: 10px;
+}
+
+.account-box h1{
+    text-align: center;
+    margin-bottom: 50px;
+}
+
+.form-group{
+    display: flex;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.form-group label{
+    width: 170px;
+    font-size: 18px;
+}
+
+.form-group input{
+    flex: 1;
+    height: 45px;
+    border: none;
+    border-radius: 6px;
+    background: #dcdcdc;
+    padding: 0 15px;
+    font-size: 16px;
+}
+
+.password-box{
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.password-box input{
+    flex: 1;
+}
+
+.show-pass-btn{
+    background: #3498db;
+    color: white;
+    border: none;
+    padding: 10px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.show-pass-btn:hover{
+    background: #2980b9;
+}
+
+.account-action{
+    text-align: center;
+    margin-top: 50px;
+}
+
+.update-btn{
+    background: #07c329;
+    color: #000;
+    padding: 15px 35px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 18px;
+}
+
+.update-btn:hover{
+    background: #7dbfe7;
+}
+
+/* ================================================= */
+/* ADMIN */
+/* ================================================= */
+
+.action-bar{
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+}
+
+/* SEARCH INPUT */
+
+.action-bar input{
+    width: 220px;
+    height: 42px;
+    padding: 0 12px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 15px;
+}
+
+.btn{
+    padding: 8px 14px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    color: white;
+    font-size: 14px;
+}
+
+/* THÊM */
+.add-btn{
+    background: #e74c3c;
+}
+
+.add-btn:hover{
+    background: #c0392b;
+}
+
+/* TÌM KIẾM */
+.search-btn{
+    background: #3498db;
+}
+
+.search-btn:hover{
+    background: #2980b9;
+}
+
+/* TẢI LẠI */
+.reset-btn{
+    background: #0ea52f;
+}
+
+.reset-btn:hover{
+    background: #08c52f;
+}
+
+/* TABLE */
+
+.table-title{
+    margin-bottom: 15px;
+}
+
+.text-center{
+    text-align: center;
+}
+
+.action-td{
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.icon-btn{
+    background: #f6e602;
+    border: none;
+    padding: 6px 20px;
+    cursor: pointer;
+    border-radius: 6px;
+}
+
+.icon-btn:hover{
+    background: #d9ca00;
+}
+
+.icon-btn img{
+    width: 20px;
+    height: 12px;
+}
+
+/* ================================================= */
+/* MODAL */
+/* ================================================= */
+
+.modal{
+    display: none;
+    position: fixed;
+    z-index: 999;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.4);
+}
+
+.account-modal-box{
+    width: 700px;
+    background: #fff;
+    margin: 60px auto;
+    border-radius: 10px;
+    padding: 30px;
+}
+
+/* HEADER */
+
+.modal-header{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.modal-header h2{
+    font-size: 36px;
+}
+
+.modal-close{
+    font-size: 30px;
+    cursor: pointer;
+}
+
+/* FORM GRID */
+
+.account-form-grid{
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    gap: 12px;
+    align-items: center;
+}
+
+.account-form-grid label{
+    font-size: 18px;
+}
+
+.account-form-grid input,
+.account-form-grid select{
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 16px;
+}
+
+/* MODAL BUTTON */
+
+.modal-actions{
+    margin-top: 40px;
+    display: flex;
+    gap: 15px;
+}
+
+.save-btn-modal{
+    background: #1abc9c;
+}
+
+.save-btn-modal:hover{
+    background: #16a085;
+}
+
+.reset-btn-modal{
+    background: #2d89ef;
+}
+
+.reset-btn-modal:hover{
+    background: #1c6fd1;
+}
+
+.delete-btn-modal{
+    background: #e74c3c;
+}
+
+.delete-btn-modal:hover{
+    background: #c0392b;
+}

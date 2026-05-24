@@ -1,0 +1,100 @@
+body {
+    margin: 0;
+    font-family: Arial;
+    background: #e5e5e5;
+}
+
+.container {
+    width: 900px;
+    height: 520px; /* cao hơn login vì nhiều input */
+    margin: 60px auto;
+    display: flex;
+    box-shadow: 0 0 20px rgba(0,0,0,0.2);
+}
+
+/* LEFT */
+.left-panel {
+    width: 50%;
+    background: #e0665c;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.logo h1 {
+    font-size: 80px;
+    color: #1d3b6a;
+    margin: 0;
+}
+
+.logo p {
+    color: #fff;
+    text-align: center;
+}
+
+/* RIGHT */
+.right-panel {
+    width: 50%;
+    background: #0f2747;
+    padding: 40px;
+    color: white;
+    position: relative;
+}
+
+/* Tabs */
+.tabs {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+}
+
+.tabs a, .tabs button {
+    background: #2f4f7f;
+    border: none;
+    padding: 6px 12px;
+    color: white;
+    text-decoration: none;
+}
+
+.tabs .active {
+    background: #e0665c;
+}
+
+/* Form */
+form {
+    margin-top: 60px;
+}
+
+input {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 10px;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid #aaa;
+    color: white;
+}
+
+input::placeholder {
+    color: #bbb;
+}
+
+/* Button */
+.btn-login {
+    width: 100%;
+    padding: 12px;
+    margin-top: 10px;
+    background: #e0665c;
+    border: none;
+    color: white;
+    font-weight: bold;
+    font-size: 18px;
+    cursor: pointer;
+    border-radius: 50px;
+}
+
+/* Error */
+.error {
+    color: #ffb3b3;
+    margin-top: 10px;
+}

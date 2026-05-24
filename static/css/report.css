@@ -1,0 +1,150 @@
+.page-header{
+    margin-bottom:20px;
+}
+
+.report-filter{
+    margin-bottom:20px;
+}
+
+.report-filter form{
+    display:flex;
+    gap:10px;
+}
+
+.report-filter select{
+    padding:10px;
+    border-radius:8px;
+}
+
+.btn-search{
+    padding:10px 20px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+}
+
+.project-info{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:15px;
+    margin-bottom:20px;
+}
+
+.info-box{
+    background:#1e293b;
+    padding:15px;
+    border-radius:12px;
+}
+
+.info-box label{
+    display:block;
+    color:#94a3b8;
+    margin-bottom:5px;
+}
+
+.info-box span{
+    color:white;
+    font-weight:bold;
+}
+
+.kpi-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:15px;
+    margin-bottom:20px;
+}
+
+.kpi-card{
+    background:#0f172a;
+    padding:20px;
+    border-radius:12px;
+    text-align:center;
+}
+
+.kpi-card h3{
+    color:#94a3b8;
+    margin-bottom:10px;
+}
+
+.kpi-card p{
+    color:white;
+    font-size:24px;
+    font-weight:bold;
+}
+
+.report-table table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+.report-table th,
+.report-table td{
+    padding:12px;
+    border-bottom:1px solid #334155;
+    text-align:center;
+}
+
+.report-table th{
+    background:#1e293b;
+}
+
+.export-box{
+    margin-top:20px;
+    display:flex;
+    gap:10px;
+}
+
+.btn-export{
+    padding:10px 20px;
+    background:#2563eb;
+    color:white;
+    border-radius:8px;
+    text-decoration:none;
+}
+
+.report-actions{
+    display: flex;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.report-actions .btn{
+    padding: 12px 20px;
+    border-radius: 10px;
+    color: white;
+    text-decoration: none;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: 0.3s;
+}
+
+.btn-danger{
+    background: #dc3545;
+    color: white;
+}
+
+.btn-success{
+    background: #198754;
+    color: white;
+}
+
+.btn-primary{
+    background: #450296;
+    color: white;
+}
+
+.export-box .btn:hover{
+    transform: translateY(-2px);
+    opacity: 0.9;
+    text-decoration: none;
+}
+
+.export-box a{
+    text-decoration: none;
+}
+
+.export-box a:hover{
+    text-decoration: none;
+}

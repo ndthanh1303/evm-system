@@ -1,0 +1,425 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block css %}
+<link rel="stylesheet"
+      href="{{ url_for('static', filename='css/dashboard.css') }}">
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block content %}
+
+<div class="dashboard-container">
+
+
+    <h1 class="dashboard-title">
+        Thống kê dự án
+    </h1>
+
+    <!-- ===================================== -->
+    <!-- BIỂU ĐỒ -->
+    <!-- ===================================== -->
+
+    <div class="dashboard-grid">
+
+        <!-- ================= TRẠNG THÁI ================= -->
+
+        <div class="chart-card large-card">
+
+            <h3>Trạng thái</h3>
+
+            <div class="chart-layout">
+
+                <div class="chart-canvas large-canvas">
+                    <canvas id="statusChart"></canvas>
+                </div>
+
+                <div class="chart-legend"
+                     id="statusLegend">
+                </div>
+
+                </div>
+
+        </div>
+
+        <!-- ================= TIẾN ĐỘ ================= -->
+
+        <div class="chart-card">
+
+            <h3>Tiến độ</h3>
+
+            <div class="chart-layout small-layout">
+
+                <div class="chart-canvas small-canvas">
+                    <canvas id="progressChart"></canvas>
+                </div>
+
+                <div class="chart-legend"
+                     id="progressLegend">
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- ================= COST ================= -->
+
+        <div class="chart-card">
+
+            <h3>Chi phí</h3>
+
+            <div class="chart-layout small-layout">
+
+                <div class="chart-canvas small-canvas">
+                    <canvas id="costChart"></canvas>
+                </div>
+
+                <div class="chart-legend"
+                     id="costLegend">
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- ===================================== -->
+    <!-- LIST -->
+    <!-- ===================================== -->
+
+    <div class="list-grid">
+
+        <!-- TRỄ TIẾN ĐỘ -->
+
+        <div class="list-box">
+
+            <h2>Danh sách dự án trễ tiến độ</h2>
+
+            <ul>
+
+                {% if late_projects %}
+
+                    {% for p in late_projects %}
+                        <li>{{ p.proj_name }}</li>
+                    {% endfor %}
+
+                {% else %}
+
+                    <li>Không có dự án nào</li>
+
+                {% endif %}
+
+            </ul>
+
+        </div>
+
+        <!-- VƯỢT CHI PHÍ -->
+
+        <div class="list-box">
+
+            <h2>Danh sách dự án vượt chi phí</h2>
+
+            <ul>
+
+                {% if over_budget_projects %}
+
+                    {% for p in over_budget_projects %}
+                        <li>{{ p.proj_name }}</li>
+                    {% endfor %}
+
+                {% else %}
+
+                    <li>Không có dự án nào</li>
+
+                {% endif %}
+
+            </ul>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}
+
+{% block js %}
+
+<script>
+
+    // =========================================
+    // DATA
+    // =========================================
+
+    const planningCount = Number('{{ planning_count | default(0) }}');
+    const workingCount = Number('{{ working_count | default(0) }}');
+    const pauseCount = Number('{{ pause_count | default(0) }}');
+    const doneCount = Number('{{ done_count | default(0) }}');
+    const closeCount = Number('{{ close_count | default(0) }}');
+
+    const lateCount = Number('{{ late_count | default(0) }}');
+    const onTime = Number('{{ on_time | default(0) }}');
+
+    const overBudget = Number('{{ over_budget_count | default(0) }}');
+    const savingBudget = Number('{{ saving_budget_count | default(0) }}');
+
+    // =========================================
+    // FUNCTION LEGEND
+    // =========================================
+
+    function createLegend(containerId, labels, data, colors){
+
+        const container = document.getElementById(containerId);
+
+        const total = data.reduce((a,b) => a + b, 0);
+
+        let html = '';
+
+        labels.forEach((label, index) => {
+
+            const value = data[index];
+
+            const percent = total > 0
+                ? Math.round((value / total) * 100)
+                : 0;
+
+            html += `
+
+                <div class="legend-item">
+
+                    <div class="legend-left">
+
+                        <span class="legend-color"
+                              style="background:${colors[index]}">
+                        </span>
+
+                        <span class="legend-label">
+                            ${label}
+                        </span>
+
+                    </div>
+
+                    <div class="legend-value">
+                        ${value} (${percent}%)
+                    </div>
+
+                </div>
+
+            `;
+        });
+
+        container.innerHTML = html;
+    }
+
+    // =========================================
+    // Trạng thái CHART
+    // =========================================
+
+    const statusLabels = [
+        'Kế hoạch',
+        'Đang thực hiện',
+        'Tạm dừng',
+        'Hoàn thành',
+        'Đóng'
+    ];
+
+    const statusData = [
+        planningCount,
+        workingCount,
+        pauseCount,
+        doneCount,
+        closeCount
+    ];
+
+    const statusColors = [
+        '#3498db',
+        '#1f5fbf',
+        '#f39c12',
+        '#2ecc71',
+        '#e74c3c'
+    ];
+
+    const centerTextPlugin = {
+
+        id: 'centerText',
+
+        beforeDraw(chart){
+
+            const { width, height, ctx } = chart;
+
+            ctx.restore();
+
+            const data = chart.data.datasets[0].data;
+
+            const total = data.reduce((a,b) => a + b, 0);
+
+            ctx.font = 'bold 34px Arial';
+            ctx.fillStyle = '#ffffff';
+            ctx.textBaseline = 'middle';
+            ctx.textAlign = 'center';
+
+            ctx.fillText(
+                total,
+                width / 2,
+                height / 2
+            );
+
+            ctx.save();
+        }
+    };
+
+    new Chart(document.getElementById('statusChart'), {
+
+        plugins: [centerTextPlugin],
+
+        type: 'doughnut',
+
+        data: {
+            labels: statusLabels,
+
+            datasets: [{
+                data: statusData,
+                backgroundColor: statusColors,
+                borderWidth: 3
+            }]
+        },
+
+        options: {
+
+            responsive: true,
+
+            cutout: '60%',
+
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        }
+    });
+
+    createLegend(
+        'statusLegend',
+        statusLabels,
+        statusData,
+        statusColors
+    );
+
+    // =========================================
+    // PROGRESS CHART
+    // =========================================
+
+    const progressLabels = [
+        'Trễ tiến độ',
+        'Đúng tiến độ'
+    ];
+
+    const progressData = [
+        lateCount,
+        onTime
+    ];
+
+    const progressColors = [
+        '#e74c3c',
+        '#2ecc71'
+    ];
+
+    new Chart(document.getElementById('progressChart'), {
+
+        plugins: [centerTextPlugin],
+
+        type: 'doughnut',
+
+        data: {
+            labels: progressLabels,
+
+            datasets: [{
+                data: progressData,
+                backgroundColor: progressColors,
+                borderWidth: 3
+            }]
+        },
+
+        options: {
+
+            responsive: true,
+
+            cutout: '60%',
+
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        }
+    });
+
+    createLegend(
+        'progressLegend',
+        progressLabels,
+        progressData,
+        progressColors
+    );
+
+    // =========================================
+    // COST CHART
+    // =========================================
+
+    const costLabels = [
+        'Vượt chi phí',
+        'Tiết kiệm chi phí'
+    ];
+
+    const costData = [
+        overBudget,
+        savingBudget
+    ];
+
+    const costColors = [
+        '#e74c3c',
+        '#2ecc71'
+    ];
+
+    new Chart(document.getElementById('costChart'), {
+
+        plugins: [centerTextPlugin],
+
+        type: 'doughnut',
+
+        data: {
+            labels: costLabels,
+
+            datasets: [{
+                data: costData,
+                backgroundColor: costColors,
+                borderWidth: 3
+            }]
+        },
+
+        options: {
+
+            responsive: true,
+
+            cutout: '60%',
+
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        }
+    });
+
+    createLegend(
+        'costLegend',
+        costLabels,
+        costData,
+        costColors
+    );
+
+</script>
+
+{% endblock %}

@@ -1,0 +1,383 @@
+{% extends 'base.html' %}
+
+{% block css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/account.css') }}">
+{% endblock %}
+
+{% block content %}
+
+<div class="account-container">
+
+    <!-- ================================================= -->
+    <!-- USER -->
+    <!-- ================================================= -->
+    {% if session['role'] == 'user' %}
+
+    <div class="account-box">
+
+        <h1>Thông tin tài khoản</h1>
+
+        <form method="POST" action="{{ url_for('update_account') }}">
+
+            <div class="form-group">
+                <label>Họ và tên:</label>
+                <input type="text" name="fullname" value="{{ account.fullname }}">
+            </div>
+
+            <div class="form-group">
+                <label>Email:</label>
+                <input type="email" name="email" value="{{ account.email }}">
+            </div>
+
+            <div class="form-group">
+                <label>Số điện thoại:</label>
+                <input type="text" name="phone" value="{{ account.phone }}">
+            </div>
+
+            <div class="form-group">
+                <label>Username:</label>
+                <input type="text" name="username" value="{{ account.username }}">
+            </div>
+
+            <div class="form-group">
+                <label>Password:</label>
+                <div class="password-box">
+                    <input 
+                        type="password"
+                        id="password"
+                        name="password"
+                        value="{{ account.password }}"
+                        required
+                    >
+
+                    <button type="button" onclick="togglePassword()" class="show-pass-btn">
+                        Hiển thị
+                    </button>
+                </div>
+            </div>
+
+            <div class="account-action">
+                <button type="submit" class="btn update-btn">
+                    CẬP NHẬT THÔNG TIN
+                </button>
+            </div>
+
+        </form>
+
+    </div>
+
+    {% endif %}
+
+
+    <!-- ================================================= -->
+    <!-- ADMIN -->
+    <!-- ================================================= -->
+    {% if session['role'] == 'admin' %}
+
+    <!-- ACTION -->
+    <div class="action-bar">
+        <form method="GET" action="{{ url_for('account') }}" class="action-bar">
+            <button type="button" class="btn add-btn" onclick="openAccountModal()">
+                + Thêm
+            </button>
+
+            <input 
+                type="text"
+                name="keyword"
+                placeholder="Nhập tên tài khoản..."
+                value="{{ request.args.get('keyword', '') }}"
+            >
+
+            <button type="submit" class="btn search-btn">
+                Tìm kiếm
+            </button>
+
+            <a href="{{ url_for('account') }}">
+                <button type="button" class="btn reset-btn">
+                    Tải lại trang
+                </button>
+            </a>
+        </form>
+    </div>
+
+    <!-- TABLE -->
+    <h1 class="table-title">Danh sách tài khoản</h1>
+
+    <table>
+
+        <tr>
+            <th class="text-center">STT</th>
+            <th class="text-center">Họ và tên</th>
+            <th class="text-center">Email</th>
+            <th class="text-center">Số điện thoại</th>
+            <th class="text-center">Username</th>
+            <th class="text-center">Password</th>
+            <th class="text-center">Quyền truy cập</th>
+            <th class="text-center">Ngày khởi tạo</th>
+            <th class="text-center">Thao tác</th>
+        </tr>
+
+        {% for acc in accounts %}
+        <tr>
+
+            <td class="text-center">{{ loop.index }}</td>
+            <td>{{ acc.fullname }}</td>
+            <td>{{ acc.email }}</td>
+            <td>{{ acc.phone }}</td>
+            <td>{{ acc.username }}</td>
+            <td>{{ acc.password }}</td>
+            <td>{{ acc.role }}</td>
+            <td>{{ acc.created_at }}</td>
+
+            <td class="action-td">
+                <button
+                class="icon-btn"
+                onclick='openEditModal(
+                    "{{ acc.user_id }}",
+                    "{{ acc.fullname }}",
+                    "{{ acc.email }}",
+                    "{{ acc.phone }}",
+                    "{{ acc.username }}",
+                    "{{ acc.password }}",
+                    "{{ acc.role }}")'>
+                    <img src="{{ url_for('static', filename='images/icon-eye.png') }}">
+                </button>
+
+            </td>
+
+        </tr>
+        {% endfor %}
+    </table>
+    {% endif %}
+</div>
+
+<!-- ================= MODAL THÊM ACCOUNT ================= -->
+<div id="accountModal" class="modal">
+
+    <div class="modal-box account-modal-box">
+
+        <div class="modal-header">
+            <h2>Thông tin tài khoản</h2>
+            <span class="modal-close" onclick="closeAccountModal()">&times;</span>
+        </div>
+
+        <form method="POST" action="/add_account" id="accountForm">
+
+            <div class="account-form-grid">
+
+                <label>Họ và tên:</label>
+                <input 
+                    type="text"
+                    name="fullname"
+                    value="{{ form_data.fullname if form_data else '' }}"
+                    required
+                >
+
+                <label>Email:</label>
+                <input 
+                    type="email"
+                    name="email"
+                    value="{{ form_data.email if form_data else '' }}"
+                    required
+                >
+
+                <label>Số điện thoại:</label>
+                <input 
+                    type="text"
+                    name="phone"
+                    value="{{ form_data.phone if form_data else '' }}"
+                    required
+                >
+
+                <label>Username:</label>
+                <input 
+                    type="text"
+                    name="username"
+                    value="{{ form_data.username if form_data else '' }}"
+                    required
+                >
+
+                <label>Password:</label>
+                <input 
+                    type="text"
+                    name="password"
+                    required
+                >
+
+                <label>Phân quyền:</label>
+
+                <select name="role" required>
+
+                    <option value="user"
+                        {% if form_data and form_data.role == 'user' %}
+                            selected
+                        {% endif %}
+                    >
+                        User
+                    </option>
+
+                    <option value="admin"
+                        {% if form_data and form_data.role == 'admin' %}
+                            selected
+                        {% endif %}
+                    >
+                        Admin
+                    </option>
+
+                </select>
+
+            </div>
+
+            <div class="modal-actions">
+
+                <button type="submit" class="btn save-btn-modal">
+                    LƯU
+                </button>
+
+                <button type="button"
+                        class="btn reset-btn-modal"
+                        onclick="resetAccountModal()">
+                    LÀM LẠI
+                </button>
+
+            </div>
+
+        </form>
+    </div>
+</div>
+
+<!-- ================= MODAL UPDATE ACCOUNT ================= -->
+
+<div id="editAccountModal" class="modal">
+
+    <div class="modal-box account-modal-box">
+
+        <div class="modal-header">
+            <h2>Cập nhật tài khoản</h2>
+            <span class="modal-close" onclick="closeEditModal()">&times;</span>
+        </div>
+
+        <form method="POST" action="/update_account_admin">
+
+            <input type="hidden" name="user_id" id="edit_user_id">
+
+            <div class="account-form-grid">
+
+                <label>Họ và tên:</label>
+                <input type="text" name="fullname" id="edit_fullname" required>
+
+                <label>Email:</label>
+                <input type="email" name="email" id="edit_email" required>
+
+                <label>Số điện thoại:</label>
+                <input type="text" name="phone" id="edit_phone" required>
+
+                <label>Username:</label>
+                <input type="text" name="username" id="edit_username" required>
+
+                <label>Password:</label>
+                <input type="text" name="password" id="edit_password" required>
+
+                <label>Phân quyền:</label>
+
+                <select name="role" id="edit_role" required>
+                    <option value="user">User</option>
+                    <option value="admin">Admin</option>
+                </select>
+
+            </div>
+
+            <div class="modal-actions">
+
+                <button type="submit" class="btn save-btn-modal">
+                    CẬP NHẬT
+                </button>
+
+                <button 
+                    type="button"
+                    class="btn add-btn"
+                    onclick="deleteAccount()"
+                >
+                    XÓA TÀI KHOẢN
+                </button>
+
+            </div>
+
+        </form>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block js %}
+<script>
+
+function togglePassword() {
+
+    const passwordInput = document.getElementById("password");
+
+    if (passwordInput.type === "password") {
+
+        passwordInput.type = "text";
+
+    } else {
+
+        passwordInput.type = "password";
+
+    }
+}
+
+
+function openAccountModal() {
+    document.getElementById("accountModal").style.display = "block";
+}
+
+function closeAccountModal() {
+    document.getElementById("accountModal").style.display = "none";
+}
+
+function resetAccountModal() {
+    document.getElementById("accountForm").reset();
+}
+
+
+window.onload = function () {
+
+    var openModal = "{{ open_modal|default('') }}";
+
+    if(openModal == "True"){
+        openAccountModal();
+    }
+
+};
+
+function openEditModal(id, fullname, email, phone, username, password, role){
+
+    document.getElementById("edit_user_id").value = id;
+    document.getElementById("edit_fullname").value = fullname;
+    document.getElementById("edit_email").value = email;
+    document.getElementById("edit_phone").value = phone;
+    document.getElementById("edit_username").value = username;
+    document.getElementById("edit_password").value = password;
+    document.getElementById("edit_role").value = role;
+
+    document.getElementById("editAccountModal").style.display = "block";
+}
+
+function closeEditModal(){
+    document.getElementById("editAccountModal").style.display = "none";
+}
+
+function deleteAccount(){
+
+    const userId = document.getElementById("edit_user_id").value;
+    const username = document.getElementById("edit_username").value;
+
+    if(confirm("Bạn có chắc là muốn xóa tài khoản '" + username + "' ?")){
+
+        window.location.href = "/delete_account/" + userId;
+    }
+}
+
+</script>
+{% endblock %}

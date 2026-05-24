@@ -1,0 +1,182 @@
+{% extends 'base.html' %}
+
+{% block css %}
+
+<link rel="stylesheet"
+      href="{{ url_for('static', filename='css/report.css') }}">
+
+{% endblock %}
+
+{% block title %}
+Báo cáo EVM
+{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <h1>Báo cáo dự án EVM</h1>
+</div>
+
+<!-- FILTER -->
+<div class="report-filter">
+
+    <form method="GET" action="{{ url_for('report') }}">
+
+        <select name="proj_id" required>
+            <option value="">-- Chọn dự án --</option>
+
+            {% for p in projects %}
+            <option value="{{ p.proj_id }}"
+                {% if selected_proj_id == p.proj_id|string %}
+                    selected
+                {% endif %}
+            >
+                {{ p.proj_name }}
+            </option>
+            {% endfor %}
+        </select>
+
+        <button type="submit" class="btn-search">
+            Xem báo cáo
+        </button>
+
+    </form>
+
+</div>
+
+{% if project %}
+
+<!-- PROJECT INFO -->
+<div class="project-info">
+
+    <div class="info-box">
+        <label>Dự án</label>
+        <span>{{ project.proj_name }}</span>
+    </div>
+
+    <div class="info-box">
+        <label>Ngày bắt đầu</label>
+        <span>{{ project.time_start }}</span>
+    </div>
+
+    <div class="info-box">
+        <label>Ngày kết thúc</label>
+        <span>{{ project.time_end }}</span>
+    </div>
+
+    <div class="info-box">
+        <label>Trạng thái</label>
+        <span>{{ status_map[project.status] }}</span>
+    </div>
+
+</div>
+
+<!-- KPI -->
+<div class="kpi-grid">
+
+    <div class="kpi-card">
+        <h3>PV</h3>
+        <p>{{ "{:,.0f}".format(kpi.PV) }} VNĐ</p>
+    </div>
+
+    <div class="kpi-card">
+        <h3>EV</h3>
+        <p>{{ "{:,.0f}".format(kpi.EV) }} VNĐ</p>
+    </div>
+
+    <div class="kpi-card">
+        <h3>AC</h3>
+        <p>{{ "{:,.0f}".format(kpi.AC) }} VNĐ</p>
+    </div>
+
+    <div class="kpi-card">
+        <h3>CPI</h3>
+        <p>{{ kpi.CPI }}</p>
+    </div>
+
+    <div class="kpi-card">
+        <h3>SPI</h3>
+        <p>{{ kpi.SPI }}</p>
+    </div>
+
+    <div class="kpi-card">
+        <h3>EAC</h3>
+        <p>{{ "{:,.0f}".format(kpi.EAC) }} VNĐ</p>
+    </div>
+
+</div>
+
+<!-- TABLE -->
+<div class="report-table">
+
+    <table>
+
+        <thead>
+            <tr>
+                <th>Công việc</th>
+                <th>PV</th>
+                <th>EV</th>
+                <th>AC</th>
+                <th>SV</th>
+                <th>CV</th>
+                <th>SPI</th>
+                <th>CPI</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+            {% for w in works %}
+            <tr>
+
+                <td>{{ w.work_name }}</td>
+
+                <td>{{ "{:,.0f}".format(w.PV) }}</td>
+
+                <td>{{ "{:,.0f}".format(w.EV) }}</td>
+
+                <td>{{ "{:,.0f}".format(w.AC) }}</td>
+
+                <td>{{ "{:,.0f}".format(w.SV) }}</td>
+
+                <td>{{ "{:,.0f}".format(w.CV) }}</td>
+
+                <td>{{ w.SPI }}</td>
+
+                <td>{{ w.CPI }}</td>
+
+            </tr>
+            {% endfor %}
+
+        </tbody>
+
+    </table>
+
+</div>
+
+<!-- EXPORT -->
+<div class="export-box">
+
+    <a href="{{ url_for('export_pdf', proj_id=project.proj_id) }}"
+       class="btn btn-danger">
+        <i class="fa-solid fa-file-pdf"></i>
+        Xuất PDF
+    </a>
+
+    <a href="{{ url_for('export_excel', proj_id=project.proj_id) }}"
+       class="btn btn-success">
+        <i class="fa-solid fa-file-excel"></i>
+        Xuất Excel
+    </a>
+
+    <a href="{{ url_for('send_report_email', proj_id=project.proj_id) }}"
+   class="btn btn-primary">
+    <i class="fa-solid fa-envelope"></i>
+    Gửi Email
+    </a>
+
+</div>
+
+{% endif %}
+
+{% endblock %}

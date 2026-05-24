@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Login - EVM</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+</head>
+<body>
+
+<div class="container">
+
+    <!-- LEFT -->
+    <div class="left-panel">
+        <div class="logo">
+            <img src="{{ url_for('static', filename='images/logo_fit.png') }}" alt="Logo">
+        </div>
+    </div>
+
+    <!-- RIGHT -->
+    <div class="right-panel">
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="active">Đăng nhập</button>
+            <a href="{{ url_for('register') }}">Đăng ký</a>
+        </div>
+
+        <form method="POST" action="{{ url_for('login') }}">
+            
+            <h3>USERNAME</h3>
+            <input type="text" name="username" placeholder="Nhập username" required>
+
+            <h3>PASSWORD</h3>
+            <input type="password" name="password" placeholder="Nhập password" required>
+
+            <div class="remember">
+                <input type="checkbox" id="remember">
+                <label for="remember">Ghi nhớ đăng nhập</label>
+            </div>
+
+            <button type="submit" class="btn-login">ĐĂNG NHẬP</button>
+
+            <p class="error">{{ msg }}</p>
+
+        </form>
+
+    </div>
+
+</div>
+
+</body>
+</html>
